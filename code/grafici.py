@@ -53,7 +53,7 @@ class Grafici:
         self.bbox_props = dict(boxstyle="round,pad=0.3", fc=self.colors[0], alpha=.5)
 
     def linear_regression_plot(self):
-        y_pred = self.model.r.predict(self.model.x_train)
+        y_pred = self.model.linear_regr.predict(self.model.x_train)
 
         mm = min(y_pred)
         mx = max(y_pred)

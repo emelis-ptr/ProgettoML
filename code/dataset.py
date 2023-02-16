@@ -6,17 +6,16 @@ class HouseDataset:
 
     def __init__(self, preprocessing=True):
         self.train: DataFrame = pd.read_csv('../dataset/train.csv')
-        print(len(self.train.columns))
         # TODO: ci sono colonne in meno nel testing
         self.test: DataFrame = pd.read_csv('../dataset/test.csv')
-        print(len(self.test.columns))
         self.selected_features: int = 0
         if preprocessing:
             self.__preprocessing()
 
     def get_features(self) -> DataFrame:
         """
-        :return: Un DataFrame con le sole features del training set. Per ottenere il Dataframe del testing set, usa self.test
+        :return: Un DataFrame con le sole features del training set (contiene anche i nomi delle colonne).
+        Per ottenere il Dataframe del testing set, usa self.test
         """
         return self.train.iloc[:, :-1]
 
@@ -25,7 +24,7 @@ class HouseDataset:
 
     def get_target(self) -> Series:
         """
-        :return: Una Series con solo la colonna target del training set.
+        :return: Una Series con solo la colonna target del training set (compreso il nome).
         """
         return self.train.iloc[:, -1]
 
