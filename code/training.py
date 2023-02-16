@@ -45,13 +45,6 @@ class Training:
     def prova(self):
         print("Lenght dataset: ", len(self.train))
 
-        # eliminiamo colonne che contengono valori Nan maggiori del 20%
-        threshold = int((len(self.train) * 20) / 100) + 1
-
-        check_nan_value(self.train)
-        # axis: specifichiamo di eliminare solo le colonne; thresh: numero minimo per eliminare
-        self.train.dropna(axis='columns', thresh=threshold, inplace=True)
-
         print("Numero di colonne prima OHE: ", len(self.train.columns))
 
         # # convertire l'nd.array in un tensore di PyTorch

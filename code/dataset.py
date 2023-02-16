@@ -7,7 +7,7 @@ class HouseDataset:
     def __init__(self, preprocessing=True):
         self.train: DataFrame = pd.read_csv('../dataset/train.csv')
         print(len(self.train.columns))
-        # TODO: ci sono colonne in meno nel testig
+        # TODO: ci sono colonne in meno nel testing
         self.test: DataFrame = pd.read_csv('../dataset/test.csv')
         print(len(self.test.columns))
         self.selected_features: int = 0
@@ -78,18 +78,24 @@ class HouseDataset:
 
         return dataset
 
+    def __remove_nan_value(self, dataset: DataFrame, threshold: int):
+        """Elimina colonne con valori NaN quando sono tanti"""
+        # eliminiamo colonne che contengono valori Nan maggiori del 20%
+        thresh = int((len(dataset) * threshold) / 100) + 1
+        # axis: specifichiamo di eliminare solo le colonne; thresh: numero minimo per eliminare
+        dataset.dropna(axis='columns', thresh=thresh, inplace=True)
+        return dataset
+
     def __preprocessing(self):
         """ Metodo che effettua il preprocessing sui due split"""
-        print("train prima: ", len(self.train.columns))
-        print("test prima: ", len(self.test.columns))
+        self.train = self.__remove_nan_value(self.train, threshold=20)
+        self.test = self.__remove_nan_value(self.test, threshold=20)
+
         self.train = self.__fill_nan(self.train)
         self.test = self.__fill_nan(self.test)
 
         self.train = self.__one_hot_encoding(self.train)
         self.test = self.__one_hot_encoding(self.test)
-
-        print("train dopo: ", len(self.train.columns))
-        print("test dopo: ", len(self.test.columns))
 
         # mettiamo la colonna target alla fine
         target = self.train.pop('SalePrice')
