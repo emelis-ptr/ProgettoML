@@ -1,76 +1,102 @@
-import os
-
 import pandas as pd
 from pandas import DataFrame, Series
-from sklearn.compose import ColumnTransformer
-from sklearn.impute import SimpleImputer
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder
 
 
 class HouseDataset:
 
     def __init__(self):
         self.train: DataFrame = pd.read_csv('../dataset/train.csv')
-        # TODO: eseguire il preprocessing per test-set
         self.test: DataFrame = pd.read_csv('../dataset/test.csv')
-        self.n_features: int = len(self.train.columns)
         self.selected_features: int = 0
         self.__preprocessing()
 
     def get_features(self) -> DataFrame:
+        """
+        :return: Un DataFrame con le sole features del training set. Per ottenere il Dataframe del testing set, usa self.test
+        """
         return self.train.iloc[:, :-1]
 
+    def get_features_with_separated_id(self) -> (Series, DataFrame):
+        return self.train.iloc[:, 0], self.train.iloc[:, 1:-1]
+
     def get_target(self) -> Series:
+        """
+        :return: Una Series con solo la colonna target del training set.
+        """
         return self.train.iloc[:, -1]
 
-    def __preprocessing(self):
-        """ Metodo che effettua one hot encoding su valori stringhe e effettua la sostituzione dei
-        valori mancanti
-        :param dataset:
-        :return:
+    def get_n_features(self) -> int:
         """
-        # salviamo in due liste diverse le colonne che contengono valori numerici e categorici
-        numerical_columns = [col for col in self.train.iloc[:, :-1].columns if
-                             self.train[col].dtype in ["int64", "float64"]]
-        categorical_columns = [col for col in self.train.columns if self.train[col].dtype == "object"]
+        :return: restituisce il numero di features nel training set (comprese le one-hot encoded). Corrisponde al numero di colonne nel testing set
+        """
+        return len(self.train.columns) - 1
 
-        # attraverso la Pipeline eseguiamo una serie di azioni
-        # applichiamo SimpleImputer per sostituire i valori Nan con la media
-        numerical_transformer = Pipeline(steps=[
-            ("imputer", SimpleImputer(strategy="mean"))
-        ])
+    def get_n_columns(self) -> int:
+        """
+        :return: restituisce il numero di colonne totale nel training set
+        """
+        return len(self.train.columns)
 
-        # applichiamo SimpleImputer per sostituire i valori Nan attraverso valori più frequenti e applichiamo
-        # oneHotEncoder per trasformare i valori categorici in valori numerici ognuno dei quali viene assegnato
-        # un valore [0, 1]
-        categorical_transformer = Pipeline(steps=[
-            ("imputer", SimpleImputer(strategy="most_frequent")),
-            ("ohe", OneHotEncoder(handle_unknown="ignore"))
-        ])
-        # consente di applicare una sequenza di trasformazioni solo alle colonne numeriche e una sequenza separata di
-        # trasformazioni solo alle colonne categoriche
-        preprocessor = ColumnTransformer(
-            transformers=[
-                ('numerical', numerical_transformer, numerical_columns),
-                ('categorical', categorical_transformer, categorical_columns)
-            ],
-            remainder='passthrough')
-        ndarray_dataset = preprocessor.fit_transform(self.train).join(self.train.iloc[:, -1]) # scegliamo la colonna sui prezzi
-        self.train = ndarray_dataset
-        # self.train = pd.concat([pd.DataFrame(ndarray_dataset), self.train.iloc[:, -1]], axis=1)
+    def __one_hot_encoding(self, dataset: DataFrame) -> DataFrame:
+        """
+        Mappa le features categoriche in nuove colonne in formato one-hot
+        :param dataset: self.train o self.test
+        :return: il DataFrame di train o test con le stringhe trasformate in ulteriori colonne one-hot (con i nomi)
+        """
+        # applica il One Hot Encoding alle colonne categoriche
+        encoded_df = pd.get_dummies(dataset)
+
+        # aggiunge il prefisso al nome delle colonne
+        prefix_dict = {col: f"{col}_{val}" for col in dataset.columns for val in dataset[col].unique()}
+
+        encoded_df.add_prefix('').rename(columns=prefix_dict)
+
+        return encoded_df
+
+    def __fill_nan(self, dataset: DataFrame) -> DataFrame:
+        """
+        Riempie i valori nulli con la media per le colonne numeriche e con il valore più comune per le colonne categoriche
+        :param dataset: self.train o self.test
+        :return: il dataframe di train o test senza valori nulli.
+        """
+        # identifichiamo le colonne categoriche e numeriche
+        categoriche = dataset.select_dtypes(include='object').columns
+        numeriche = dataset.select_dtypes(include='number').columns
+
+        # TODO: fare attenzione, forse la media non va bene per tutti i valori numerici
+
+        # sostituiamo i valori nulli con la moda per le colonne categoriche
+        dataset[categoriche] = dataset[categoriche].fillna(dataset[categoriche].mode().iloc[0])
+
+        # sostituiamo i valori nulli con la media per le colonne numeriche
+        dataset[numeriche] = dataset[numeriche].fillna(dataset[numeriche].mean())
+
+        return dataset
+
+    def __preprocessing(self):
+        """ Metodo che effettua il preprocessing sui due split"""
+
+        self.train = self.__fill_nan(self.train)
+        self.test = self.__fill_nan(self.test)
+
+        self.train = self.__one_hot_encoding(self.train)
+        self.test = self.__one_hot_encoding(self.test)
+
+        # mettiamo la colonna target alla fine
+        target = self.train.pop('SalePrice')
+        self.train['SalePrice'] = target
 
 
 if __name__ == "__main__":
-    current_directory = os.getcwd()
-    print("La cartella corrente è:", current_directory)
+    # current_directory = os.getcwd()
+    # print("La cartella corrente è:", current_directory)
 
     dataset = HouseDataset()
-    features = dataset.get_features()
-    target = dataset.get_target()
-
-    print(features.shape)
-    print(target.shape)
-    print(target)
-
-    print(dataset.train)
+    # features = dataset.get_features()
+    # target = dataset.get_target()
+    print(list(dataset.train.columns))
+    assert dataset.get_n_features() == 289
+    # print(dataset.train[["SalePrice"]])
+    x, y = dataset.get_features_with_separated_id()
+    print(x)
+    print(y)

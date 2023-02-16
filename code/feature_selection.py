@@ -18,10 +18,10 @@ class FeatureSelection:
         X_new = selector.fit_transform(X, y)
 
         # converte data in tensor
-        X_new = torch.from_numpy(X_new).float()
-        y = torch.from_numpy(y.values).float()
-
-        return X_new, y
+        X_new_tensor: Tensor = torch.from_numpy(X_new).float()
+        y_tensor: Tensor = torch.from_numpy(y.values).float()
+        # TODO convertire in Dataframe??? Oppure lasciare tensor?
+        return X_new_tensor, y_tensor
 
 
 if __name__ == "__main__":
