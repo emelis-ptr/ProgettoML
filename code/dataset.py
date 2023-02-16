@@ -63,7 +63,8 @@ class HouseDataset:
         categoriche = dataset.select_dtypes(include='object').columns
         numeriche = dataset.select_dtypes(include='number').columns
 
-        # TODO: fare attenzione, forse la media non va bene per tutti i valori numerici
+        # TODO: fare attenzione, forse la media non va bene per tutte le colonne numeriche in cui ci sono NaN
+        # TODO: fare attenzione, forse non va bene usare il valore più comune per i valori nulli sulle colonne categoriche
 
         # sostituiamo i valori nulli con la moda per le colonne categoriche
         dataset[categoriche] = dataset[categoriche].fillna(dataset[categoriche].mode().iloc[0])

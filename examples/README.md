@@ -1,0 +1,22 @@
+# Esempi di codice Machine Learning
+
+1) [`mnist`](01_mlp_mnist_tf.ipynb) Riconoscimento cifre (notebook) [In colab](https://colab.research.google.com/github/tvml/ml2122/blob/master/codici/mlp_mnist_tf.ipynb)
+2) [`Titanic`](02_titanic.ipynb) Sopravvissuti Titanic (notebook) [In colab](https://colab.research.google.com/github/tvml/ml2122/blob/master/codici/titanic.ipynb)
+3) [`Loss`](03_loss.ipynb) Funzione loss e GD (notebook) [In colab](https://colab.research.google.com/github/tvml/ml2122/blob/master/codici/loss.ipynb)
+4) [`Regression.`](regression.ipynb) Esempi di regressione mediante scikit-learn (notebook) [In colab](https://colab.research.google.com/github/tvml/ml2122/blob/master/codici/regression.ipynb)
+5) [`Beta_bernoulli.`](05_BetaBernoulli.ipynb) Modello Beta-Bernoulli (notebook) [In colab](https://colab.research.google.com/github/tvml/ml2122/blob/master/codici/BetaBernoulli.ipynb)
+6) [`Naive bayes.`](06_naivebayes.ipynb) Classificazione naive bayes di documenti (notebook) [In colab](https://colab.research.google.com/github/tvml/ml2122/blob/master/codici/naivebayes.ipynb)
+7) [`GDA lineare.`](07_gda.ipynb) Classificazione mediante GDA con covarianza comune (notebook) [In colab](https://colab.research.google.com/github/tvml/ml2122/blob/master/codici/gda.ipynb)
+8) [`GDA.`](08_gdaquad.ipynb) Classificazione mediante GDA nel caso generale (notebook) [In colab](https://colab.research.google.com/github/tvml/ml2122/blob/master/codici/gdaquad.ipynb)
+9) [`GDA lineare in scikit-learn.`](09_gda-lin-sk-cv.ipynb) Classificazione mediante GDA con covarianza comune implementata in scikit-learn (notebook) [In colab](https://colab.research.google.com/github/tvml/ml2122/blob/master/codici/gda-lin-sk-cv.ipynb)
+10) [`GDA in scikit-learn.`](10_gda-sk-cv.ipynb) Classificazione mediante GDA (caso generale) implementata in scikit-learn (notebook) [In colab](https://colab.research.google.com/github/tvml/ml2122/blob/master/codici/gda-sk-cv.ipynb)
+11) [`Overfitting.`](11_overfitting.ipynb) Illustrazione overfitting (notebook) [In colab](https://colab.research.google.com/github/tvml/ml2122/blob/master/codici/overfitting.ipynb)
+12) [`Biasvar.`](12_biasvar.ipynb) Effetto coefficiente di regolarizzazione in Ridge regression (notebook) [In colab](https://colab.research.google.com/github/tvml/ml2122/blob/master/codici/biasvar.ipynb)
+13) [`Model selection.`](13_model_selection.ipynb) Esempio di overfitting con model selection (notebook) [In colab](https://colab.research.google.com/github/tvml/ml2122/blob/master/codici/model_selection.ipynb)
+14) [`linregr_samples.`](14_linregr_samples.ipynb) Apprendimento sequenziale in bayesian regression (notebook) [In colab](https://colab.research.google.com/github/tvml/ml2122/blob/master/codici/linregr_samples.ipynb)
+15) [`linregr_predict.`](15_linregr_predict.ipynb) Distribuzione predittiva in fully bayesian regression (notebook) [In colab](https://colab.research.google.com/github/tvml/ml2122/blob/master/codici/linregr_predict.ipynb)
+16) [`equiv_kernel.`](16_equiv_kernel.ipynb) Calcolo e visualizzazione del kernel equivalente (notebook) [In colab](https://colab.research.google.com/github/tvml/ml2122/blob/master/codici/equiv_kernel.ipynb)
+17) [`linregr_gradient.`](17_linregr_gradient.ipynb) Regressione lineare con gradiente (notebook) [In colab](https://colab.research.google.com/github/tvml/ml2122/blob/master/codici/linregr_gradient.ipynb)
+18) [`linregr_mc.`](18_linregr_mc.ipynb) Regressione lineare mediante inferenza MCMC in pymc3 (notebook) [In colab](https://colab.research.google.com/github/tvml/ml2122/blob/master/codici/linregr_mc.ipynb)
+19) [`linear regression.`](19_linear_regression.ipynb) Metodi di regressione lineare(notebook) [In colab](https://colab.research.google.com/github/tvml/ml2122/blob/master/codici/linear_regression.ipynb)
+20) ...
