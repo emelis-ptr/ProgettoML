@@ -1,8 +1,15 @@
 import pandas as pd
 from pandas import DataFrame, Series
-from sklearn.feature_selection import SelectKBest, f_regression
+from sklearn.feature_selection import SelectKBest, f_regression, mutual_info_regression
 
 from code.dataset import HouseDataset
+
+from enum import Enum
+
+
+class FS(Enum):
+    SELECT_K_BEST = 1
+    MUTUAL_INFORMATION = 2
 
 
 class FeatureSelection:
@@ -32,10 +39,25 @@ class FeatureSelection:
         # TODO convertire in Dataframe??? Oppure lasciare tensor?
         return x_new_df, y
 
+    def mutual_information(self, k: int) -> (DataFrame, Series):
+        """
+        La quantità di informazioni che ogni feature da rispetto alle altre
+        :return: le features selezionate
+        """
+        # calcola la informazione mutua tra le features rispetto al valore target
+        mi = mutual_info_regression(self.x_train, self.y_train)
+        # crea il dataframe dei risultati con la mutua informazione
+        dmi = pd.DataFrame(mi, index=self.x_train.columns, columns=['mi']).sort_values(by='mi', ascending=False)
+        # prende dal datagrame le k feature con più informazione mutua
+        feat = list(dmi.index[:k])
+        # restituisco dal training solo le k feature con più informazione mutua
+        return self.x_train[feat], self.y_train
+
 
 if __name__ == "__main__":
     dataset = HouseDataset()
-    feature = FeatureSelection(dataset.get_features(), dataset.get_target())
+    _, feats = dataset.get_features_with_separated_id()
+    feature = FeatureSelection(feats, dataset.get_target())
 
     x_select, y_select = feature.select_kbest(10)
     print("x ", x_select)

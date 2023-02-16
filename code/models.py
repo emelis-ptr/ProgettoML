@@ -3,28 +3,36 @@ from sklearn.metrics import mean_squared_error
 from sklearn.svm import SVR
 
 from code.dataset import HouseDataset
-from code.feature_selection import FeatureSelection
+from code.feature_selection import FeatureSelection, FS
 
 
 class Model:
 
     def __init__(self, dataset: HouseDataset):
-        self.x_train = dataset.get_features()
+        self.id, self.x_train = dataset.get_features_with_separated_id()
         self.y_train = dataset.get_target()
         self.x_test = dataset.test
         self.y_test = None
         self.linear_regr = LinearRegression()
 
-    def linear_regression(self):
+    def linear_regression(self, feat_sel_type: FS):
         """
         Da scarsi risultati perché il modello non è linearmente separabile
         :return:
         """
         results_mse = []
         feature = FeatureSelection(self.x_train, self.y_train)
+
         for k in range(10, len(self.x_train.columns), 10):
             # selezioniamo le prime k feature
-            x_select, y_select = feature.select_kbest(k)
+            match feat_sel_type:
+                case FS.SELECT_K_BEST:
+                    x_select, y_select = feature.select_kbest(k)
+                case FS.MUTUAL_INFORMATION:
+                    x_select, y_select = feature.mutual_information(k)
+                case _:
+                    print("MUORI")
+                    return
             # addestriamo con la regressione linare
             self.linear_regr.fit(x_select, y_select)
             # calcoliamo il mean squared error
@@ -77,4 +85,7 @@ class Model:
 if __name__ == "__main__":
     dataset = HouseDataset()
     models = Model(dataset)
-    models.linear_regression()
+    print("FS.SELECT_K_BEST")
+    models.linear_regression(FS.SELECT_K_BEST)
+    print("FS.MUTUAL_INFORMATION")
+    models.linear_regression(FS.MUTUAL_INFORMATION)

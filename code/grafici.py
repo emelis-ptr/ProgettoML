@@ -1,6 +1,7 @@
 import numpy as np
 from matplotlib import cm
 import matplotlib.colors as mcolors
+from pandas import DataFrame
 
 from code.dataset import HouseDataset
 from code.models import Model
@@ -52,8 +53,8 @@ class Grafici:
 
         self.bbox_props = dict(boxstyle="round,pad=0.3", fc=self.colors[0], alpha=.5)
 
-    def linear_regression_plot(self):
-        y_pred = self.model.linear_regr.predict(self.model.x_train)
+    def linear_regression_plot(self, selected_train: DataFrame):
+        y_pred = self.model.linear_regr.predict(selected_train)
 
         mm = min(y_pred)
         mx = max(y_pred)
