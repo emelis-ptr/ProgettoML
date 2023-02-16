@@ -9,7 +9,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
 from torchvision.datasets import MNIST
-from torch.utils.data import DataLoader, ConcatDataset
+from torch.utils.data import DataLoader, ConcatDataset, TensorDataset
 from sklearn.model_selection import KFold
 import matplotlib.pyplot as plt
 import torch.nn as nn
@@ -33,8 +33,8 @@ learning_rate = 0.001
 class Training:
 
     def __init__(self):
-        self.train: DataFrame = pd.read_csv('dataset/train.csv')
-        self.test: DataFrame = pd.read_csv('dataset/test.csv')
+        self.train: DataFrame = pd.read_csv('../dataset/train.csv')
+        self.test: DataFrame = pd.read_csv('../dataset/test.csv')
         self.n_features: int = len(self.train.columns)
         self.selected_features: int = 0
 
@@ -43,35 +43,35 @@ class Training:
         return pd.concat([self.train, self.test])
 
     def prova(self):
-        dataset = self.train
-        print("Lenght dataset: ", len(dataset))
+        print("Lenght dataset: ", len(self.train))
 
         # notiamo che alcune colonne hanno un numero elevato di valori NaN, quindi è opportuno eliminarli
-        check_nan_value(dataset)
+        check_nan_value(self.train)
 
         # eliminiamo colonne che contengono valori Nan maggiori del 20%
-        threshold = int((len(dataset) * 20) / 100) + 1
+        threshold = int((len(self.train) * 20) / 100) + 1
 
         # axis: specifichiamo di eliminare solo le colonne; thresh: numero minimo per eliminare
-        dataset.dropna(axis='columns', thresh=threshold, inplace=True)
+        self.train.dropna(axis='columns', thresh=threshold, inplace=True)
 
-        x_dataset = dataset.iloc[:, :-1]
-        y_dataset = dataset.iloc[:, -1]
+        print("Numero di colonne prima OHE: ", len(self.train.columns))
+        dataset_encoded = one_hot_encoder(self.train)
 
-        print("Numero di colonne prima OHE: ", len(dataset.columns))
-        dataset_encoded = one_hot_encoder(dataset)
+        ndarray_dataset = dataset_encoded.fit_transform(self.train).toarray()  # scegliamo la colonna sui prezzi
 
-        x_tr = dataset_encoded.fit_transform(dataset)
-        y_tr = pd.DataFrame(y_dataset)  # scegliamo la colonna sui prezzi
+        # convertire l'nd.array in un tensore di PyTorch
+        tensor = torch.Tensor(ndarray_dataset)
+        # creare un oggetto TensorDataset
+        dataset = TensorDataset(tensor)
 
-        self.selected_features = x_tr
-        print(x_tr)
-        for fold, (train_index, test_index) in enumerate(kfold_val().split(x_tr)):
+        self.selected_features = len(dataset[0])
+        print(ndarray_dataset)
+        for fold, (train_index, test_index) in enumerate(kfold_val().split(dataset)):
             print(f'FOLD {fold}')
 
             # Divide il dataset in training set e validation set
-            train_set = torch.utils.data.Subset(x_tr, train_index)
-            val_set = torch.utils.data.Subset(x_tr, test_index)
+            train_set = torch.utils.data.Subset(dataset, train_index)
+            val_set = torch.utils.data.Subset(dataset, test_index)
 
             # Crea i DataLoader per il training set e il validation set
             train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
@@ -89,10 +89,10 @@ class Training:
 
             # Addestra il modello
             for epoch in range(n_epochs):
-                for x, y in train_loader:
+                for x in train_loader:
                     optimizer.zero_grad()  # azzera i gradienti dei pesi
                     y_pred = model(x)
-                    loss = criterion(y_pred, y)
+                    loss = criterion(y_pred, x[:-1])
                     loss.backward()
                     optimizer.step()
 
@@ -108,13 +108,13 @@ class Training:
                 # Seleziona le migliori features usando SelectKBest e f_regression
                 # sostituisci 5 con il numero di features che vuoi selezionare
                 selector = SelectKBest(f_regression, k=5)
-                selector.fit(x, y)
+                selector.fit(x, x[:-1])
                 selected_features = selector.get_support()
 
                 # Riduci le features del dataset
-                dataset.reduce_features(selected_features)
+                self.train.reduce_features(selected_features)
 
-            print(dataset)
+            print(self.train)
 
 
 def kfold_val():
@@ -132,38 +132,6 @@ def check_nan_value(dataset):
     # plt.show()
 
 
-def one_hot_encoder(dataset):
-    """ Metodo che effettua one hot encoding su valori stringhe e effettua la sostituzione dei
-    valori mancanti
-    :param dataset:
-    :return:
-    """
-    # salviamo in due liste diverse le colonne che contengono valori numerici e categorici
-    numerical_columns = [col for col in dataset.columns if dataset[col].dtype in ["int64", "float64"]]
-    categorical_columns = [col for col in dataset.columns if dataset[col].dtype == "object"]
-
-    # attraverso la Pipeline eseguiamo una serie di azioni
-    # applichiamo SimpleImputer per sostituire i valori Nan con la media
-    numerical_transformer = Pipeline(steps=[
-        ("imputer", SimpleImputer(strategy="mean"))
-    ])
-
-    # applichiamo SimpleImputer per sostituire i valori Nan attraverso valori più frequenti e applichiamo
-    # oneHotEncoder per trasformare i valori categorici in valori numerici ognuno dei quali viene assegnato
-    # un valore [0, 1]
-    categorical_transformer = Pipeline(steps=[
-        ("imputer", SimpleImputer(strategy="most_frequent")),
-        ("ohe", OneHotEncoder(handle_unknown="ignore"))
-    ])
-    # consente di applicare una sequenza di trasformazioni solo alle colonne numeriche e una sequenza separata di
-    # trasformazioni solo alle colonne categoriche
-    preprocessor = ColumnTransformer(
-        transformers=[
-            ('numerical', numerical_transformer, numerical_columns),
-            ('categorical', categorical_transformer, categorical_columns)
-        ],
-        remainder='passthrough')
-    return preprocessor
 
 
 class MyModel(nn.Module):
