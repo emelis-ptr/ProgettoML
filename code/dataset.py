@@ -7,12 +7,12 @@ ORDINAL_ENCODING = True
 
 class HouseDataset:
 
-    def __init__(self, preprocessing=True):
+    def __init__(self, threshold: int, preprocessing=True):
         self.train: DataFrame = pd.read_csv('../dataset/train.csv')
         # TODO: ci sono colonne in meno nel testing
         self.test: DataFrame = pd.read_csv('../dataset/test.csv')
         self.selected_features: int = 0
-        print(self.train.select_dtypes(include='object').columns)
+        self.threshold = threshold
         if preprocessing:
             self.__preprocessing()
 
@@ -82,26 +82,30 @@ class HouseDataset:
         # TODO: fare attenzione, forse la media non va bene per tutte le colonne numeriche in cui ci sono NaN
         # TODO: fare attenzione, forse non va bene usare il valore più comune per i valori nulli sulle colonne categoriche
 
-        # sostituiamo i valori nulli con la moda per le colonne categoriche
-        dataset[categoriche] = dataset[categoriche].fillna(dataset[categoriche].mode().iloc[0])
+        count_nan = dataset.isnull().sum(axis=0)
+        count_nans_filtered = count_nan.loc[count_nan != 0]
 
-        # sostituiamo i valori nulli con la media per le colonne numeriche
-        dataset[numeriche] = dataset[numeriche].fillna(dataset[numeriche].mean())
+        if len(count_nans_filtered) != 0:
+            # sostituiamo i valori nulli con la moda per le colonne categoriche
+            dataset[categoriche] = dataset[categoriche].fillna(dataset[categoriche].mode().iloc[0])
+
+            # sostituiamo i valori nulli con la media per le colonne numeriche
+            dataset[numeriche] = dataset[numeriche].fillna(dataset[numeriche].mean())
 
         return dataset
 
-    def __remove_nan_value(self, dataset: DataFrame, threshold: int):
+    def __remove_nan_value(self, dataset: DataFrame):
         """Elimina colonne con valori NaN quando sono tanti"""
         # eliminiamo colonne che contengono valori Nan maggiori del 20%
-        thresh = int((len(dataset) * threshold) / 100) + 1
+        thresh = int((len(dataset) * self.threshold) / 100) + 1
         # axis: specifichiamo di eliminare solo le colonne; thresh: numero minimo per eliminare
         dataset.dropna(axis='columns', thresh=thresh, inplace=True)
         return dataset
 
     def __preprocessing(self):
         """ Metodo che effettua il preprocessing sui due split"""
-        self.train = self.__remove_nan_value(self.train, threshold=20)
-        self.test = self.__remove_nan_value(self.test, threshold=20)
+        self.train = self.__remove_nan_value(self.train)
+        self.test = self.__remove_nan_value(self.test)
 
         self.train = self.__fill_nan(self.train)
         self.test = self.__fill_nan(self.test)
@@ -122,7 +126,7 @@ if __name__ == "__main__":
     # current_directory = os.getcwd()
     # print("La cartella corrente è:", current_directory)
 
-    dataset = HouseDataset()
+    dataset = HouseDataset(15, preprocessing=True)
     print(dataset.train)
 
     # features = dataset.get_features()

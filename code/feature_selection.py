@@ -10,6 +10,7 @@ from enum import Enum
 class FS(Enum):
     SELECT_K_BEST = 1
     MUTUAL_INFORMATION = 2
+    NONE = 3
 
 
 class FeatureSelection:
@@ -28,20 +29,20 @@ class FeatureSelection:
         # ottengo un vettore di 0,1 dove 1 indica i nomi delle colonne selezionate
         mask = selector.get_support()
         # accedo ai nomi delle colonne
-        selected_features = x.columns[mask]
+        # selected_features = x.columns[mask]
 
         # crea un nuovo dataframe con le colonne selezionate
-        x_new_df = pd.DataFrame(x_new, columns=selected_features)
+        # x_new_df = pd.DataFrame(x_new, columns=selected_features)
 
         # converte data in tensor
         # x_new_tensor: Tensor = torch.from_numpy(x_new).float()
         # y_tensor: Tensor = torch.from_numpy(y.values).float()
         # TODO convertire in Dataframe??? Oppure lasciare tensor?
-        return x_new_df, y
+        return selector, x_new, y
 
     def mutual_information(self, k: int) -> (DataFrame, Series):
         """
-        La quantità di informazioni che ogni feature da rispetto alle altre
+        La quantità di informazioni che ogni feature da rispetto alle altre.
         :return: le features selezionate
         """
         # calcola la informazione mutua tra le features rispetto al valore target
@@ -55,7 +56,7 @@ class FeatureSelection:
 
 
 if __name__ == "__main__":
-    dataset = HouseDataset()
+    dataset = HouseDataset(0, preprocessing=True)
     _, feats = dataset.get_features_with_separated_id()
     feature = FeatureSelection(feats, dataset.get_target())
 

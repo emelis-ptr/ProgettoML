@@ -55,14 +55,14 @@ class Grafici:
 
         self.bbox_props = dict(boxstyle="round,pad=0.3", fc=self.colors[0], alpha=.5)
 
-    def linear_regression_plot(self, y_train, y_pred):
+    def linear_regression_plot(self, y_pred):
         mm = min(y_pred)
         mx = max(y_pred)
 
         fig = plt.figure(figsize=(16, 8))
         ax = fig.gca()
         # residuo= differenza tra valore predetto e valore addestrato del training
-        plt.scatter(y_pred, (y_pred - y_train), c=self.colors[8], edgecolor='xkcd:light grey')
+        plt.scatter(y_pred, (y_pred - self.model.y_train), c=self.colors[8], edgecolor='xkcd:light grey')
         plt.xlabel(r'Valori predetti ($y_i$)')
         plt.ylabel(r'Residui ($y_i-t_i$)')
         plt.hlines(y=0, xmin=(int(mm) / 10) * 10, xmax=(int(mx) / 10) * 10 + 10, color=self.colors[2], lw=2)
@@ -86,13 +86,34 @@ class Grafici:
         plt.title(r'MSE al variare di $\alpha$ in Lasso')
         plt.show()
 
-    def lasso_regression_plot(self, y, y_pred):
+    def lasso_regression_plot(self, y_pred):
         mm = min(y_pred)
         mx = max(y_pred)
 
         fig = plt.figure(figsize=(16, 8))
         ax = fig.gca()
-        plt.scatter(y_pred, (y_pred - y), c=self.colors[8], edgecolor='xkcd:light grey')
+        plt.scatter(y_pred, (y_pred - self.model.y_train), c=self.colors[8], edgecolor='xkcd:light grey')
+        plt.xlabel(r'Valori predetti ($y_i$)')
+        plt.ylabel(r'Residui ($y_i-t_i$)')
+        plt.hlines(y=0, xmin=(int(mm) / 10) * 10, xmax=(int(mx) / 10) * 10 + 10, color=self.colors[2], lw=2)
+        plt.tight_layout()
+        plt.show()
+
+    def mse_polynomial_features_plot(self, results):
+        top = 15
+        fig = plt.figure(figsize=(16, 8))
+        ax = fig.gca()
+        plt.plot([r[0] for r in results[:top]], [r[1] for r in results[:top]], color=self.colors[8], label=r'Train')
+        plt.plot([r[0] for r in results[:top]], [r[2] for r in results[:top]], color=self.colors[2], label=r'Test')
+        plt.legend()
+
+    def polynomial_features_plot(self, y_pred):
+        mm = min(y_pred)
+        mx = max(y_pred)
+
+        fig = plt.figure(figsize=(16, 8))
+        ax = fig.gca()
+        plt.scatter(y_pred, (y_pred - self.model.y_train), c=self.colors[8], edgecolor='white', label='Train')
         plt.xlabel(r'Valori predetti ($y_i$)')
         plt.ylabel(r'Residui ($y_i-t_i$)')
         plt.hlines(y=0, xmin=(int(mm) / 10) * 10, xmax=(int(mx) / 10) * 10 + 10, color=self.colors[2], lw=2)
