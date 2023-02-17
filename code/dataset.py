@@ -1,5 +1,8 @@
 import pandas as pd
 from pandas import DataFrame, Series
+from sklearn.preprocessing import OrdinalEncoder
+
+ORDINAL_ENCODING = True
 
 
 class HouseDataset:
@@ -9,6 +12,7 @@ class HouseDataset:
         # TODO: ci sono colonne in meno nel testing
         self.test: DataFrame = pd.read_csv('../dataset/test.csv')
         self.selected_features: int = 0
+        print(self.train.select_dtypes(include='object').columns)
         if preprocessing:
             self.__preprocessing()
 
@@ -39,6 +43,15 @@ class HouseDataset:
         :return: restituisce il numero di colonne totale nel training set
         """
         return len(self.train.columns)
+
+    def __ordinal_encoding(self, dataset: DataFrame) -> DataFrame:
+        # applica il One Hot Encoding alle colonne categoriche
+        categoriche = dataset.select_dtypes(include='object').columns
+
+        for cat in categoriche:
+            dataset[cat], uniques = pd.factorize(dataset[cat])
+
+        return dataset
 
     def __one_hot_encoding(self, dataset: DataFrame) -> DataFrame:
         """
@@ -93,8 +106,12 @@ class HouseDataset:
         self.train = self.__fill_nan(self.train)
         self.test = self.__fill_nan(self.test)
 
-        self.train = self.__one_hot_encoding(self.train)
-        self.test = self.__one_hot_encoding(self.test)
+        if ORDINAL_ENCODING:
+            self.train = self.__ordinal_encoding(self.train)
+            self.test = self.__ordinal_encoding(self.test)
+        else:
+            self.train = self.__one_hot_encoding(self.train)
+            self.test = self.__one_hot_encoding(self.test)
 
         # mettiamo la colonna target alla fine
         target = self.train.pop('SalePrice')
@@ -106,5 +123,7 @@ if __name__ == "__main__":
     # print("La cartella corrente è:", current_directory)
 
     dataset = HouseDataset()
+    print(dataset.train)
+
     # features = dataset.get_features()
     # target = dataset.get_target()
