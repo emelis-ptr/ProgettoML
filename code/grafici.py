@@ -1,10 +1,12 @@
+from typing import List
+
 import numpy as np
 from matplotlib import cm
 import matplotlib.colors as mcolors
 from pandas import DataFrame
 
-from code.dataset import HouseDataset
-from code.models import Model
+from dataset import HouseDataset
+from models import Model
 from matplotlib import pyplot as plt
 
 
@@ -53,17 +55,46 @@ class Grafici:
 
         self.bbox_props = dict(boxstyle="round,pad=0.3", fc=self.colors[0], alpha=.5)
 
-    def linear_regression_plot(self, selected_train: DataFrame):
-        y_pred = self.model.linear_regr.predict(selected_train)
-
+    def linear_regression_plot(self, y_train, y_pred):
         mm = min(y_pred)
         mx = max(y_pred)
 
         fig = plt.figure(figsize=(16, 8))
         ax = fig.gca()
         # residuo= differenza tra valore predetto e valore addestrato del training
-        plt.scatter(y_pred, (y_pred - self.model.y_train), c=self.colors[8], edgecolor='xkcd:light grey')
+        plt.scatter(y_pred, (y_pred - y_train), c=self.colors[8], edgecolor='xkcd:light grey')
         plt.xlabel(r'Valori predetti ($y_i$)')
         plt.ylabel(r'Residui ($y_i-t_i$)')
         plt.hlines(y=0, xmin=(int(mm) / 10) * 10, xmax=(int(mx) / 10) * 10 + 10, color=self.colors[2], lw=2)
+        plt.show()
+
+    def mse_linear_regression_plot(self, scores: []):
+        fig = plt.figure(figsize=(16, 8))
+        ax = fig.gca()
+        plt.plot(scores[:, 0], scores[:, 1])
+        plt.xlabel(r'Numero di feature')
+        plt.ylabel('MSE')
+        plt.title(r'MSE al variare di k-feature nella regressione lineare')
+        plt.show()
+
+    def mse_lasso_regression_plot(self, scores: []):
+        fig = plt.figure(figsize=(16, 8))
+        ax = fig.gca()
+        plt.plot(scores[:, 0], scores[:, 1])
+        plt.xlabel(r'$\alpha$')
+        plt.ylabel('MSE')
+        plt.title(r'MSE al variare di $\alpha$ in Lasso')
+        plt.show()
+
+    def lasso_regression_plot(self, y, y_pred):
+        mm = min(y_pred)
+        mx = max(y_pred)
+
+        fig = plt.figure(figsize=(16, 8))
+        ax = fig.gca()
+        plt.scatter(y_pred, (y_pred - y), c=self.colors[8], edgecolor='xkcd:light grey')
+        plt.xlabel(r'Valori predetti ($y_i$)')
+        plt.ylabel(r'Residui ($y_i-t_i$)')
+        plt.hlines(y=0, xmin=(int(mm) / 10) * 10, xmax=(int(mx) / 10) * 10 + 10, color=self.colors[2], lw=2)
+        plt.tight_layout()
         plt.show()

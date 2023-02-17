@@ -2,7 +2,7 @@ import pandas as pd
 from pandas import DataFrame, Series
 from sklearn.feature_selection import SelectKBest, f_regression, mutual_info_regression
 
-from code.dataset import HouseDataset
+from dataset import HouseDataset
 
 from enum import Enum
 
