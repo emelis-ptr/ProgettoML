@@ -87,7 +87,7 @@ class LinearRegressionMS(ModelSelection):
         self.name = "LinearRegression"
         self.model = LinearRegression
 
-    def select_model(self, fs: FeaturesSelection) -> DataFrame:
+    def select_model(self, fs: FeaturesSelection) -> (DataFrame, int):
         """
         Esegue model selection per un modello LinearRegression
         :param fs: un oggetto che implementa FeaturesSelection
@@ -96,6 +96,7 @@ class LinearRegressionMS(ModelSelection):
         # Cerchiamo il valore k ottimale di features da selezionare in base al valore di R^2
         best_r2 = -float('inf')
         best_features = None
+        best_k = 1
         for k in range(1, self.x_train.shape[1] + 1):
             model = self.model()
 
@@ -126,8 +127,9 @@ class LinearRegressionMS(ModelSelection):
             if r2 > best_r2:
                 best_r2 = r2
                 best_features = x_selected
+                best_k = k
 
-        return best_features
+        return best_features, best_k
 
 
 class LassoRegressionMS(ModelSelection):
@@ -136,8 +138,8 @@ class LassoRegressionMS(ModelSelection):
         super().__init__(dataset)
         self.name = "LassoRegression"
         self.scaler = scaler
-        self.cv_model = LassoCV()
-        self.model = Lasso()
+        self.cv_model = LassoCV
+        self.model = Lasso
 
     def select_model(self, fs: FeaturesSelection) -> DataFrame:
         """
@@ -262,55 +264,6 @@ class ElasticNetRegressionMS(ModelSelection):
         :return:
         """
         pass
-
-
-class PolynomialRegressionMS(ModelSelection):
-    def __init__(self, dataset: HouseDataset, scaler, model_type: MODEL, alpha=0.0):
-        super().__init__(dataset)
-        self.name = "PolynomialRegression"
-        self.scaler = scaler
-        match model_type:
-            case MODEL.LINEAR_REGRESSION:
-                model = LinearRegression()
-            case MODEL.LASSO_REGRESSION:
-                model = Lasso(alpha=alpha)
-            case _:
-                print("Devi scegliere tra Lasso e LinearRegression")
-                return
-
-        self.model = model
-        self.alpha = alpha
-
-    def select_model(self, fs: FeaturesSelection):
-        # ex polnomial_features()
-        results = []
-
-        # tecnica di preprocessing dei dati che viene utilizzata
-        # per ridimensionare i dati in modo che abbiano una
-        # media zero e una deviazione standard unitaria
-        x_train_scaled = self.__match_scaler()
-        model = None
-        x_train_pf = None
-
-        # TODO: aggiungere feature selection
-        for degree in range(1, 3):
-            polynomial_features = PolynomialFeatures(degree=degree)
-            x_train_pf = polynomial_features.fit_transform(x_train_scaled)
-
-            model.fit(x_train_pf, self.y_train)
-
-            r2 = model.score(x_train_pf, self.y_train)
-            # prestazioni tramite cross-validation
-            scores = cross_val_score(estimator=model, X=x_train_pf, y=self.y_train, cv=5,
-                                     scoring='neg_mean_squared_error')
-            mse = mean_squared_error(model.predict(x_train_pf), self.y_train)
-            mse_cv = -scores.mean()
-
-            results.append([degree, mse, mse_cv])
-
-        y = model.predict(x_train_pf)
-        # result= Result(r2, )
-        return results, y
 
 
 class SupportVectorRegressionMS(ModelSelection):

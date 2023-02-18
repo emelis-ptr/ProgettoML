@@ -11,10 +11,15 @@ class HouseDataset:
         Crea un'istanza di HouseDataset
         :param threshold: la percentuale di valori nulli sul totale di istanze dopo la quale verrà eliminata una colonna
         """
+        # questo dataset è usato per l'addestramento. Va diviso in training, validation e testing set.
         self.raw_train: DataFrame = pd.read_csv('../dataset/train.csv')
-        self.raw_test: DataFrame = pd.read_csv('../dataset/test.csv')
+        # questo dataset e' usato per fare l'upload su kaggle
+        self.kaggle_test: DataFrame = pd.read_csv('../dataset/test.csv')
+        # questo dataset lo usiamo per training e validation
         self.train = pd.read_csv('../dataset/train.csv')
+        # questa porzione di dataset la usiamo per il testing
         self.test = pd.read_csv('../dataset/test.csv')
+
         self.selected_features: int = 0
         self.threshold = threshold
         self.__preprocessing()
