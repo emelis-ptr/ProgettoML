@@ -5,29 +5,41 @@ from sklearn.feature_selection import SelectKBest, f_regression, mutual_info_reg
 from dataset import HouseDataset
 
 from enum import Enum
+from abc import ABC, abstractmethod
 
 
-class FS(Enum):
-    SELECT_K_BEST = 1
-    MUTUAL_INFORMATION = 2
-    NONE = 3
+class FeaturesSelection(ABC):
+    """
+    Interfaccia che definisce un singolo metodo per le feature selections
+    """
+
+    def __init__(self):
+        self.name: str = ""
+
+    @abstractmethod
+    def select_features(self, k: int, x_train: DataFrame, y_train: Series) -> (DataFrame, Series):
+        """
+        Esegue la feature selection su un dataset
+        :param x_train: il dataset di training
+        :param y_train: il dataset di testing
+        :param k: il numero di feature da selezionare
+        """
+        pass
 
 
-class FeatureSelection:
+class SelectKBestFS(FeaturesSelection):
 
-    def __init__(self, x_train, y_train):
-        self.x_train = x_train
-        self.y_train = y_train
+    def __init__(self):
+        super().__init__()
+        self.name = "_SelectKBest"
 
-    def select_kbest(self, top_features: int) -> (DataFrame, Series):
-        x, y = self.x_train, self.y_train
-
+    def select_features(self, k: int, x_train: DataFrame, y_train: Series) -> (DataFrame, Series):
         # seleziona (K) top features
-        selector = SelectKBest(f_regression, k=top_features)
-        x_new = selector.fit_transform(x, y)
+        selector = SelectKBest(f_regression, k=k)
+        x_new = selector.fit_transform(x_train, y_train)
 
         # ottengo un vettore di 0,1 dove 1 indica i nomi delle colonne selezionate
-        mask = selector.get_support()
+        # mask = selector.get_support()
         # accedo ai nomi delle colonne
         # selected_features = x.columns[mask]
 
@@ -38,28 +50,41 @@ class FeatureSelection:
         # x_new_tensor: Tensor = torch.from_numpy(x_new).float()
         # y_tensor: Tensor = torch.from_numpy(y.values).float()
         # TODO convertire in Dataframe??? Oppure lasciare tensor?
-        return selector, x_new, y
+        return pd.DataFrame(x_new), y_train
 
-    def mutual_information(self, k: int) -> (DataFrame, Series):
+
+class MutualInformationFS(FeaturesSelection):
+
+    def __init__(self):
+        super().__init__()
+        self.name = "_MutualInformation"
+
+    def select_features(self, k: int, x_train: DataFrame, y_train: Series) -> (DataFrame, Series):
         """
-        La quantità di informazioni che ogni feature da rispetto alle altre.
-        :return: le features selezionate
+        La quantità d'informazioni che ogni feature da rispetto alle altre.
+        :return: Le features selezionate
         """
         # calcola la informazione mutua tra le features rispetto al valore target
-        mi = mutual_info_regression(self.x_train, self.y_train)
+        mi = mutual_info_regression(x_train, y_train)
         # crea il dataframe dei risultati con la mutua informazione
-        dmi = pd.DataFrame(mi, index=self.x_train.columns, columns=['mi']).sort_values(by='mi', ascending=False)
+        dmi = pd.DataFrame(mi, index=x_train.columns, columns=['mi']).sort_values(by='mi', ascending=False)
         # prende dal datagrame le k feature con più informazione mutua
         feat = list(dmi.index[:k])
         # restituisco dal training solo le k feature con più informazione mutua
-        return self.x_train[feat], self.y_train
+        return x_train[feat], y_train
+
+
+class NoFS(FeaturesSelection):
+
+    def select_features(self, k: int, x_train: DataFrame, y_train: Series) -> (DataFrame, Series):
+        return x_train, y_train
 
 
 if __name__ == "__main__":
-    dataset = HouseDataset(0, preprocessing=True)
+    dataset = HouseDataset(0)
     _, feats = dataset.get_features_with_separated_id()
-    feature = FeatureSelection(feats, dataset.get_target())
+    feature = NoFS()
 
-    x_select, y_select = feature.select_kbest(10)
+    x_select, y_select = feature.select_features(10)
     print("x ", x_select)
     print("y ", y_select)

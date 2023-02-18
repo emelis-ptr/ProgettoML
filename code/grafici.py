@@ -1,13 +1,13 @@
-from typing import List
-
-import numpy as np
-from matplotlib import cm
 import matplotlib.colors as mcolors
+import numpy as np
+import pandas as pd
+from matplotlib import cm
+from matplotlib import pyplot as plt
+from matplotlib.figure import Figure
+from numpy import ndarray
 from pandas import DataFrame
 
-from dataset import HouseDataset
 from models import Model
-from matplotlib import pyplot as plt
 
 
 def check_nan_value(dataset):
@@ -15,7 +15,7 @@ def check_nan_value(dataset):
     count_nan = dataset.isnull().sum(axis=0)
     count_nans_filtered = count_nan.loc[count_nan != 0]
     nan_cols = dataset.columns[dataset.isna().any()]
-
+    pd.DataFrame(data=nan_cols)
     plt.bar(nan_cols, count_nans_filtered, color="green")
     plt.xlabel("Columns")
     plt.xticks(rotation=90)
@@ -25,9 +25,7 @@ def check_nan_value(dataset):
 
 class Grafici:
 
-    def __init__(self, model: Model):
-        self.model = model
-
+    def __init__(self):
         self.plt = plt
         self.plt.style.use('fivethirtyeight')
         self.plt.rcParams['font.family'] = 'sans-serif'
@@ -55,44 +53,57 @@ class Grafici:
 
         self.bbox_props = dict(boxstyle="round,pad=0.3", fc=self.colors[0], alpha=.5)
 
-    def linear_regression_plot(self, y_pred):
+    def linear_regression_plot(self, y_train, y_pred):
         mm = min(y_pred)
         mx = max(y_pred)
 
-        fig = plt.figure(figsize=(16, 8))
-        ax = fig.gca()
+        fig = self.plt.figure(figsize=(16, 8))
+        ax = fig.gca()  # TODO: A che serve questa ax?
         # residuo= differenza tra valore predetto e valore addestrato del training
-        plt.scatter(y_pred, (y_pred - self.model.y_train), c=self.colors[8], edgecolor='xkcd:light grey')
-        plt.xlabel(r'Valori predetti ($y_i$)')
-        plt.ylabel(r'Residui ($y_i-t_i$)')
-        plt.hlines(y=0, xmin=(int(mm) / 10) * 10, xmax=(int(mx) / 10) * 10 + 10, color=self.colors[2], lw=2)
-        plt.show()
+        self.plt.scatter(y_pred, (y_pred - y_train), c=self.colors[8], edgecolor='xkcd:light grey')
+        self.plt.xlabel(r'Valori predetti ($y_i$)')
+        self.plt.ylabel(r'Residui ($y_i-t_i$)')
+        self.plt.hlines(y=0, xmin=(int(mm) / 10) * 10, xmax=(int(mx) / 10) * 10 + 10, color=self.colors[2], lw=2)
+        self.plt.show()
 
-    def mse_linear_regression_plot(self, scores: []):
-        fig = plt.figure(figsize=(16, 8))
-        ax = fig.gca()
-        plt.plot(scores[:, 0], scores[:, 1])
-        plt.xlabel(r'Numero di feature')
-        plt.ylabel('MSE')
-        plt.title(r'MSE al variare di k-feature nella regressione lineare')
-        plt.show()
+    def mse_linear_regression_plot(self, scores: DataFrame):
+        """
+        Traccia il grafico dell'errore quadratico medio al variare del numero di features utilizzate
+        :param scores: ['n_featuers', 'mse', 'r2']
+        :return:
+        """
+        # crea due subplot con l'asse x condiviso
+        fig, axs = self.plt.subplots(2, sharex='col')
+
+        axs[0].plot(scores['n_features'], scores['mse'], linewidth=1, color=self.colors[0],
+                    label='mse')  # primo subplot
+        axs[1].plot(scores['n_features'], scores['r2'], linewidth=1, color=self.colors[1],
+                    label='r2')  # secondo subplot
+        self.plt.xlabel('Numero di feature')
+
+        # axs[0].ylabel('MSE')
+        axs[0].set_ylabel('MSE')
+        axs[1].set_ylabel('R2')
+
+        self.plt.title('MSE e R2 al variare di k-feature nella regressione lineare')
+        self.plt.show()
 
     def mse_lasso_regression_plot(self, scores: []):
         fig = plt.figure(figsize=(16, 8))
-        ax = fig.gca()
+        fig.gca()
         plt.plot(scores[:, 0], scores[:, 1])
         plt.xlabel(r'$\alpha$')
         plt.ylabel('MSE')
         plt.title(r'MSE al variare di $\alpha$ in Lasso')
         plt.show()
 
-    def lasso_regression_plot(self, y_pred):
+    def lasso_regression_plot(self, y_train, y_pred):
         mm = min(y_pred)
         mx = max(y_pred)
 
         fig = plt.figure(figsize=(16, 8))
-        ax = fig.gca()
-        plt.scatter(y_pred, (y_pred - self.model.y_train), c=self.colors[8], edgecolor='xkcd:light grey')
+        fig.gca()
+        plt.scatter(y_pred, (y_pred - y_train), c=self.colors[8], edgecolor='xkcd:light grey')
         plt.xlabel(r'Valori predetti ($y_i$)')
         plt.ylabel(r'Residui ($y_i-t_i$)')
         plt.hlines(y=0, xmin=(int(mm) / 10) * 10, xmax=(int(mx) / 10) * 10 + 10, color=self.colors[2], lw=2)
@@ -102,20 +113,39 @@ class Grafici:
     def mse_polynomial_features_plot(self, results):
         top = 15
         fig = plt.figure(figsize=(16, 8))
-        ax = fig.gca()
+        fig.gca()
         plt.plot([r[0] for r in results[:top]], [r[1] for r in results[:top]], color=self.colors[8], label=r'Train')
         plt.plot([r[0] for r in results[:top]], [r[2] for r in results[:top]], color=self.colors[2], label=r'Test')
         plt.legend()
 
-    def polynomial_features_plot(self, y_pred):
+    def polynomial_features_plot(self, y_train, y_pred):
         mm = min(y_pred)
         mx = max(y_pred)
 
         fig = plt.figure(figsize=(16, 8))
-        ax = fig.gca()
-        plt.scatter(y_pred, (y_pred - self.model.y_train), c=self.colors[8], edgecolor='white', label='Train')
+        fig.gca()
+        plt.scatter(y_pred, (y_pred - y_train), c=self.colors[8], edgecolor='white', label='Train')
         plt.xlabel(r'Valori predetti ($y_i$)')
         plt.ylabel(r'Residui ($y_i-t_i$)')
         plt.hlines(y=0, xmin=(int(mm) / 10) * 10, xmax=(int(mx) / 10) * 10 + 10, color=self.colors[2], lw=2)
         plt.tight_layout()
         plt.show()
+
+
+if __name__ == '__main__':
+    from model_selection import LinearRegressionMS, SCALER
+    from dataset import HouseDataset
+    from feature_selection import *
+
+    # eseguiamo un model selection con scaling standard e 10-folds cv
+    h = HouseDataset(15.0)
+    ms = LinearRegressionMS(h, SCALER.STANDARD_SCALER)
+
+    # istanziamo il modello migliore
+    best_linear_regression = Model(SelectKBestFS(), ms)
+    result = best_linear_regression.apply_model()
+
+    # TODO: qua ho bisogno dell'array di mse ottenuto dalla feature selection, non dalla cross validation
+
+    # traccio il grafico del mse al variare delle features
+    Grafici().mse_linear_regression_plot(ms.features_scores)

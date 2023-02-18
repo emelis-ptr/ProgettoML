@@ -1,20 +1,23 @@
 import pandas as pd
-from pandas import DataFrame, Series
-from sklearn.preprocessing import OrdinalEncoder
+from pandas import DataFrame, Series, Index
 
 ORDINAL_ENCODING = True
 
 
 class HouseDataset:
 
-    def __init__(self, threshold: int, preprocessing=True):
-        self.train: DataFrame = pd.read_csv('../dataset/train.csv')
-        # TODO: ci sono colonne in meno nel testing
-        self.test: DataFrame = pd.read_csv('../dataset/test.csv')
+    def __init__(self, threshold: float):
+        """
+        Crea un'istanza di HouseDataset
+        :param threshold: la percentuale di valori nulli sul totale di istanze dopo la quale verrà eliminata una colonna
+        """
+        self.raw_train: DataFrame = pd.read_csv('../dataset/train.csv')
+        self.raw_test: DataFrame = pd.read_csv('../dataset/test.csv')
+        self.train = pd.read_csv('../dataset/train.csv')
+        self.test = pd.read_csv('../dataset/test.csv')
         self.selected_features: int = 0
         self.threshold = threshold
-        if preprocessing:
-            self.__preprocessing()
+        self.__preprocessing()
 
     def get_features(self) -> DataFrame:
         """
@@ -24,6 +27,10 @@ class HouseDataset:
         return self.train.iloc[:, :-1]
 
     def get_features_with_separated_id(self) -> (Series, DataFrame):
+        """
+        :return: Una Series e un DataFrame con le sole features del training set (contiene anche i nomi delle colonne).
+        Per ottenere il Dataframe del testing set, usa self.test
+        """
         return self.train.iloc[:, 0], self.train.iloc[:, 1:-1]
 
     def get_target(self) -> Series:
@@ -34,7 +41,8 @@ class HouseDataset:
 
     def get_n_features(self) -> int:
         """
-        :return: restituisce il numero di features nel training set (comprese le one-hot encoded). Corrisponde al numero di colonne nel testing set
+        :return: restituisce il numero di features nel training set (comprese le one-hot encoded).
+        Corrisponde al numero di colonne nel testing set
         """
         return len(self.train.columns) - 1
 
@@ -43,6 +51,31 @@ class HouseDataset:
         :return: restituisce il numero di colonne totale nel training set
         """
         return len(self.train.columns)
+
+    def get_categorical(self, raw=True) -> Index:
+        """
+        Per default, restituisce le colonne categoriche del dataset iniziale.
+        Se raw=False restituisce nessuna colonna, perché il dataset trasformato non ha colonne categoriche.
+        :param raw:
+        :return:
+        """
+        if raw:
+            return self.raw_train.select_dtypes(include='object').columns
+        else:
+            return self.train.select_dtypes(include='object').columns
+
+    def get_numerical(self, raw: bool) -> Index:
+        """
+        Restituisce le colonne numeriche del dataset scelto.
+        Se raw=False restituisce tutte le colonne, perché il dataset trasformato ha solo colonne numeriche, altrimenti
+        restituisce solo le colonne che in origine erano numeriche.
+        :param raw:
+        :return:
+        """
+        if raw:
+            return self.raw_train.select_dtypes(include='number').columns
+        else:
+            return self.train.select_dtypes(include='number').columns
 
     def __ordinal_encoding(self, dataset: DataFrame) -> DataFrame:
         # applica il One Hot Encoding alle colonne categoriche
@@ -126,8 +159,10 @@ if __name__ == "__main__":
     # current_directory = os.getcwd()
     # print("La cartella corrente è:", current_directory)
 
-    dataset = HouseDataset(15, preprocessing=True)
-    print(dataset.train)
+    houseDataset = HouseDataset(15.0)
+
+    print(houseDataset.get_categorical())
+    print(houseDataset.get_categorical(raw=False))
 
     # features = dataset.get_features()
     # target = dataset.get_target()
