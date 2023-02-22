@@ -6,7 +6,7 @@ ORDINAL_ENCODING = True
 
 class HouseDataset:
 
-    def __init__(self, threshold: float):
+    def __init__(self, threshold=15.0):
         """
         Crea un'istanza di HouseDataset
         :param threshold: la percentuale di valori nulli sul totale di istanze dopo la quale verrà eliminata una colonna
@@ -164,7 +164,7 @@ if __name__ == "__main__":
     # current_directory = os.getcwd()
     # print("La cartella corrente è:", current_directory)
 
-    houseDataset = HouseDataset(15.0)
+    houseDataset = HouseDataset()
 
     print(houseDataset.get_categorical())
     print(houseDataset.get_categorical(raw=False))

@@ -81,7 +81,7 @@ class NoFS(FeaturesSelection):
 
 
 if __name__ == "__main__":
-    dataset = HouseDataset(0)
+    dataset = HouseDataset(100.0)
     _, feats = dataset.get_features_with_separated_id()
     feature = NoFS()
 

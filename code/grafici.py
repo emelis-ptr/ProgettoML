@@ -138,7 +138,7 @@ if __name__ == '__main__':
     from feature_selection import *
 
     # eseguiamo un model selection con scaling standard e 10-folds cv
-    h = HouseDataset(15.0)
+    h = HouseDataset()
     ms = LinearRegressionMS(h, SCALER.STANDARD_SCALER)
 
     # istanziamo il modello migliore

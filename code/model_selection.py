@@ -3,12 +3,12 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
+import tensorflow as tf
 from sklearn.model_selection import KFold, cross_val_score
 from sklearn.preprocessing import StandardScaler, RobustScaler, PolynomialFeatures
 from sklearn.svm import SVR
 
-
-from feature_selection import FeaturesSelection, SelectKBestFS
+from feature_selection import FeaturesSelection, SelectKBestFS, NoFS
 from pandas import DataFrame, Series
 from sklearn.linear_model import LinearRegression, LassoCV, Lasso, RidgeCV, Ridge, ElasticNet
 from sklearn.metrics import mean_squared_error
@@ -149,46 +149,25 @@ class LassoRegressionMS(ModelSelection):
         :return:
         """
         # LASSO CV
-
-        best_alpha = 0.0
-
-        for k in range(1, self.x_train.shape[1] + 1):
-            # Selezioniamo le k features migliori utilizzando la regressione univariata
-            x_select, y_select = fs.select_features(k, self.x_train, self.y_train)
-
-            # Lo scaling è una tecnica di preprocessing dei dati che viene utilizzata
-            # per ridimensionare i dati in modo che abbiano una
-            # media zero e una deviazione standard unitaria
-            x_train_scaled = self.match_scaler(x_select)
-
-            # crea istanza del modello di regressione Lasso
-            lasso_cv = LassoCV(cv=self.k_folds, random_state=42)
-
-            # addestra il modello
-            lasso_cv.fit(x_train_scaled, y_select)
-
-            # coefficiente di regressione: identifica le variabili che il modello ritiene più importanti per la predizione
-            reg_coef = lasso_cv.coef_
-
-            # calcolo errore quadratico medio negativo (neg_mean_squared_error)
-            # utilizziamo questo perchè cross_val_score cerca di massimizzare il punteggio,
-            # mentre per l'MSE vogliamo minimizzarlo.
-            cross_val_score(estimator=lasso_cv, X=x_train_scaled, y=self.y_train, cv=20,
-                            scoring='neg_mean_squared_error')
-
-            best_alpha = lasso_cv.alpha_  # miglior valore di alpha
-
-        # LASSO
-        # Crea un'istanza del modello di regressione Lasso
-        lasso = Lasso(alpha=self.cv_model.alpha_)
-        lasso.fit(x_train_scaled, y_select)
-        # Valutiamo le prestazioni del modello sul test set
-        r2 = lasso.score(x_train_scaled, y_select)
-        mse = cross_val_score(estimator=lasso, X=x_train_scaled, y=y_select, cv=self.k_folds,
-                              scoring='neg_mean_squared_error')
-
-        y_pred = lasso.predict(x_train_scaled)
-        # result = Result(self.name, r2, mse, y_pred)
+        domain = np.linspace(0, 10, 100)
+        cv = 10
+        scores = []
+        kf = KFold(n_splits=cv)
+        # considera tutti i valori di alpha in domain
+        for a in domain:
+            # definisce modello con Lasso
+            p = Pipeline([('scaler', StandardScaler()), ('regression', Lasso(alpha=a))])
+            xval_err = 0
+            # per ogni coppia train-test valuta l'errore sul test set del modello istanziato sulla base del training set
+            for k, (train_index, test_index) in enumerate(kf.split(X, y)):
+                p.fit(X[train_index], y[train_index])
+                y1 = p.predict(X[test_index])
+                err = y1 - y[test_index]
+                xval_err += np.dot(err, err)
+            # calcola erroe medio
+            score = xval_err / X.shape[0]
+            scores.append([a, score])
+        scores = np.array(scores)
         return y_pred
 
 
@@ -286,15 +265,75 @@ class SupportVectorRegressionMS(ModelSelection):
         print("SVM R^2 accuracy = ", acc)  # TODO correggi
 
 
+class NeuralNetworkMS(ModelSelection):
+    def __init__(self, dataset: HouseDataset):
+        super().__init__(dataset)
+        self.epochs = 15
+        self.optimizer = "sgd"
+        self.loss = "mean_squared_error"
+
+    def select_model(self, fs: FeaturesSelection) -> Any:
+        # TODO: normalizzare il dataset: la loss è enorme!!!
+        n_features = dataset.get_n_features()
+        x_train = dataset.get_features_with_separated_id()[1][200:]
+        print(x_train.columns)
+        y_train = dataset.get_target()[200:]
+        print(y_train)
+        x_test = dataset.get_features_with_separated_id()[1][:200]
+        y_test = dataset.get_target()[:200]
+
+        # Normalizzo il dataset
+        mean = np.mean(x_train, axis=0)
+        std = np.std(x_train, axis=0)
+        x_train = (x_train - mean) / std
+
+        mean = np.mean(y_train, axis=0)
+        std = np.std(y_train, axis=0)
+        y_train = (y_train - mean) / std
+
+        mean = np.mean(x_test, axis=0)
+        std = np.std(x_test, axis=0)
+        x_test = (x_test - mean) / std
+
+        mean = np.mean(y_test, axis=0)
+        std = np.std(y_test, axis=0)
+        y_test = (y_test - mean) / std
+
+        model = tf.keras.Sequential([
+            # uso [n_features] neuroni nel primo layer
+            tf.keras.layers.Dense(units=140, input_shape=[n_features-1], activation=tf.nn.relu),
+            # uso un neurone nell'ultimo layer. Anche qui uso la relu, per evitare di avere dei SalePrice negativi
+            #tf.keras.layers.Dense(units=400, activation=tf.nn.relu),
+            tf.keras.layers.Dense(units=1, activation=tf.nn.relu)
+        ])
+        # compilo il modello con ottimizzatore e funzione loss
+        model.compile(optimizer=self.optimizer, loss=self.loss, metrics=['accuracy'])
+        # addestro la rete neurale dal 200esimo elemento in poi
+        model.fit(x_train, y_train, epochs=self.epochs)
+        print("testing:")
+        # i primi 200 elementi li uso come testing
+        model.evaluate(x_test, y_test)
+
+
+class myCallback(tf.keras.callbacks.Callback):
+    def on_epoch_end(self, epoch, logs=None):
+        if logs.get('accuracy') > 0.6:
+            self.model.stop_training = True
+
+
 if __name__ == '__main__':
     from models import Model
-    dataset = HouseDataset(15.0)
+
+    dataset = HouseDataset()
     # eseguiamo un model selection con scaling standard e 10-folds cv
-    ms = LinearRegressionMS(dataset, SCALER.STANDARD_SCALER)
+    # ms = LinearRegressionMS(dataset, SCALER.STANDARD_SCALER)
+    #
+    # # istanziamo il modello migliore
+    # best_linear_regression = Model(SelectKBestFS(), ms)
+    # result = best_linear_regression.apply_model()
+    #
+    # # stampo il risultato della model selection
+    # print(ms.features_scores)
 
-    # istanziamo il modello migliore
-    best_linear_regression = Model(SelectKBestFS(), ms)
-    result = best_linear_regression.apply_model()
-
-    # stampo il risultato della model selection
-    print(ms.features_scores)
+    ms = NeuralNetworkMS(dataset)
+    ms.select_model(fs=NoFS())
