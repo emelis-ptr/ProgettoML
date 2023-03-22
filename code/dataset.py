@@ -24,7 +24,7 @@ class HouseDataset:
         self.threshold = threshold
         self.__preprocessing()
 
-    def get_features(self) -> DataFrame:
+    def get_features_with_id(self) -> DataFrame:
         """
         :return: Un DataFrame con le sole features del training set (contiene anche i nomi delle colonne).
         Per ottenere il Dataframe del testing set, usa self.test
@@ -44,23 +44,33 @@ class HouseDataset:
         """
         return self.train.iloc[:, -1]
 
-    def get_n_features(self) -> int:
+    def get_n_features(self, raw=False) -> int:
         """
-        :return: restituisce il numero di features nel training set (comprese le one-hot encoded).
+        :param raw: Se True, restituisce il numero di feature escluso l'id prima del preprocessing
+        :return: Restituisce il numero di features nel training set per default dopo il preprocessing (comprese le one-hot encoded).
+        Corrisponde al numero di colonne nel testing set - 1
+        """
+        return self.get_n_columns(raw) - 2
+
+    def get_n_features_with_id(self, raw=False) -> int:
+        """
+        :param raw: Se True, restituisce il numero di feature compreso l'id prima del preprocessing
+        :return: Restituisce il numero di features nel training set per default dopo il preprocessing (comprese le one-hot encoded e l'id).
         Corrisponde al numero di colonne nel testing set
         """
-        return len(self.train.columns) - 1
+        return self.get_n_columns(raw) - 1
 
-    def get_n_columns(self) -> int:
+    def get_n_columns(self, raw=False) -> int:
         """
-        :return: restituisce il numero di colonne totale nel training set
+        :param raw: Se True, restituisce il numero feature+target compreso l'id prima del preprocessing
+        :return: Restituisce il numero di colonne totale nel training set, dopo il preprocessing (per default)
         """
-        return len(self.train.columns)
+        return len(self.train.columns) if not raw else len(self.raw_train.columns)
 
     def get_categorical(self, raw=True) -> Index:
         """
-        Per default, restituisce le colonne categoriche del dataset iniziale.
-        Se raw=False restituisce nessuna colonna, perché il dataset trasformato non ha colonne categoriche.
+        Per default, restituisce un Index coi nomi delle colonne categoriche del dataset iniziale.
+        Se raw=False restituisce nessuna colonna, perché il dataset dopo il preprocessing non ha colonne categoriche.
         :param raw:
         :return:
         """
@@ -69,18 +79,21 @@ class HouseDataset:
         else:
             return self.train.select_dtypes(include='object').columns
 
-    def get_numerical(self, raw: bool) -> Index:
+    def get_numerical(self, raw=False, include_id=False) -> Index:
         """
-        Restituisce le colonne numeriche del dataset scelto.
-        Se raw=False restituisce tutte le colonne, perché il dataset trasformato ha solo colonne numeriche, altrimenti
+        Per default, restituisce un Index coi nomi delle colonne numeriche del dataset, con il target e senza l'id, dopo il
+        preprocessing del dataset.
+
+        Se raw=False sarà uguale a get_n_features, perché il dataset trasformato ha solo colonne numeriche, altrimenti
         restituisce solo le colonne che in origine erano numeriche.
-        :param raw:
+        :param include_id: Se true, include anche l'id tra le feature numeriche (default False)
+        :param raw: Se true, considera il dataset iniziale (default False)
         :return:
         """
-        if raw:
-            return self.raw_train.select_dtypes(include='number').columns
-        else:
-            return self.train.select_dtypes(include='number').columns
+        # uso l'operatore ternario per scrivere gli if in una sola riga
+        train_dataset = self.raw_train if raw else self.train
+        numerical_dataset = train_dataset.select_dtypes(include='number')
+        return numerical_dataset.columns if include_id else numerical_dataset.columns[1:]
 
     def __ordinal_encoding(self, dataset: DataFrame) -> DataFrame:
         # applica il One Hot Encoding alle colonne categoriche

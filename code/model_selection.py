@@ -274,7 +274,7 @@ class NeuralNetworkMS(ModelSelection):
 
     def select_model(self, fs: FeaturesSelection) -> Any:
         # TODO: normalizzare il dataset: la loss è enorme!!!
-        n_features = dataset.get_n_features()
+        n_features = dataset.get_n_features_with_id()
         x_train = dataset.get_features_with_separated_id()[1][200:]
         print(x_train.columns)
         y_train = dataset.get_target()[200:]
