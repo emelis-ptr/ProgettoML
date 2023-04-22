@@ -1,81 +1,81 @@
-Variabile;Descrizione;Tipo;Segmento;Aspettativa;Conclusione;Tipo di encoder;Commenti
-1stFlrSF;Primo piano mq;Numerica;space;10;;;
-2ndFlrSF;Secondo piano mq;Numerica;space;10;;;
-MSZoning;Identifica la classificazione generale della zona della vendita;Categorica;location;10;;one hot encoder;
-BsmtFullBath;Bagni interrati completi (wc, doccia, vasca, lavandino);Numerica;building;9;;;
-Condition1;Vicinanza a varie condizioni(Adiacente alla strada arteriosa, Funzionalità fuori sede quasi positiva: parco, area verde, ecc.);Categorica;location;9;;one hot encoder ;
-Electrical;Sistema elettrico;Categorica;building;9;;one hot encoder;
-Functional;Funzionalità domestica;Categorica;building;9;;one hot encoder;
-GarageArea;Dimensioni del garage in mq;Numerica;space;9;;;
-GarageCars;Dimensioni del garage nella capacità dell'auto;Numerica;space;9;;;
-LotArea;Dimensione del lotto in mq;Numerica;space;9;;;
-PoolArea;Area piscina in mq;Numerica;space;9;;;
-PoolQC;Qualità della piscina;Categorica;building;9;;ordinal encoding;
-Utilities;Tipo di utenze disponibili;Categorica;building;9;;one hot encoder;
-BsmtFinSF1;Tipo 1, mq finiti;Numerica;building;8;;;
-Condition2;Prossimità a varie condizioni (se più di una è presente);Categorica;location;8;;one hot encoder ;
-Exterior1st;Rivestimento esterno sulla casa(mattoni, amianto, ..);Categorica;building;8;;one hot encoding;
-ExterQual;Valuta la qualità del materiale all'esterno;Categorica;building;8;;ordinal encoding;
-FullBath;"Bagni completi ""above grade""";Numerica;building;8;;;
-KitchenQual;Qualità della cucina;Categorica;building;8;;ordinal encoding;
-OverallQual;Valuta il materiale complessivo e la finitura della casa;Numerica;building;8;;ordinal encoding;
-YearBuilt;Data di costruzione originaria;Numerica;building;8;;;
-BldgType;Tipo di abitazione (Unifamiliare Indipendente, bifamiliare, Unità terminale della casa a schiera, …);Categorica;building;7;;one hot encoder;
-BsmtFinSF2;Tipo 2, mq finiti;Numerica;building;7;;;
-BsmtUnfSF;Metri quadrati al grezzo di area seminterrata;Numerica;space;7;;;
-CentralAir;Aria condizionata centralizzata;Categorica;building;7;;one hot encoder (yes/no);
-ExterCond;Valuta lo stato attuale del materiale all'esterno;Categorica;building;7;;ordinal encoding;
-Exterior2nd;Rivestimento esterno della casa (se più di un materiale);Categorica;building;7;;one hot encoding;
-GrLivArea;Superficie abitabile sopra il livello (terra) in mq;Numerica;space;7;;;
-Heating;Tipo di riscaldamento;Categorica;building;7;;one hot encoder;
-HeatingQC;Qualità e condizioni del riscaldamento;Categorica;building;7;;ordinal encoding;
-HouseStyle;Stile dell'abitazione;Categorica;building;7;;one hot encoder;
-MSSubClass;Identifica il tipo di abitazione oggetto della vendita.;Numerica;building;7;;one hot encoder;
-RoofMatl;Materiale del tetto;Categorica;building;7;;one hot encoder;
-TotRmsAbvGrd;Camere totali sopra il livello (esclusi i bagni);Numerica;building;7;;;
-YearRemodAdd;Data di ristrutturazione (uguale alla data di costruzione se non ci sono ristrutturazioni o aggiunte);Numerica;building;7;;;
-YrSold;Anno in cui è stato venduto (AAAA);Numerica;building;7;;;
-BsmtCond;Valuta le condizioni generali del seminterrato;Categorica;building;6;;Ordinal encoding;
-BsmtFinType1;Valutazione dell'area finita del seminterrato;Categorica;building;6;;Ordinal encoding;
-LowQualFinSF;mq rifiniti di bassa qualità (tutti i pavimenti);Numerica;space;6;;;
-OverallCond;Valuta le condizioni generali della casa;Numerica;building;6;;ordinal encoding;
-Street;Tipo di strada di accesso alla proprietà;Categorica;location;6;;one hot encoder;
-3SsnPorch;Area portico tre stagioni in piedi quadrati;Numerica;space;5;;;
-BsmtFinType2;Valutazione dell'area finita del seminterrato (se più tipologie);Categorica;building;5;;Ordinal encoding;
-BsmtHalfBath;Mezzi bagni nel seminterrato (solo wc e lavandino);Numerica;building;5;;;
-GarageCond;Condizioni garage;Categorica;building;5;;ordinal encoding;
-LotConfig;Configurazione del lotto (interno, angolo, ..);Categorica;building;5;;one hot encoder;
-Neighborhood;Posizioni fisiche all'interno dei confini della città di Ames;Categorica;location;5;;one hot encoder;
-ScreenPorch;Area del portico della vetrata in mq;Numerica;space;5;;;
-BedroomAbvGr;Camere da letto di livello superiore (NON include camere da letto nel seminterrato);Numerica;building;4;;;
-BsmtExposure;Si riferisce a muri a livello di walkout o giardino;Categorica;building;4;;Ordinal encoding;
-GarageQual;Qualità del garage;Categorica;building;4;;ordinal encoding;
-GarageYrBlt;L'anno in cui il garage è stato costruito;Numerica;building;4;;;
-HalfBath;Mezzi bagni sopra il livello (terra);Numerica;building;4;;;
-LandSlope;Pendenza della proprietà;Categorica;location;4;;one hot encoder;
-LotFrontage;Piedi lineari di strada collegata alla proprietà;Numerica;space;4;;;
-MasVnrArea;Superficie impiallacciata in muratura in mq;Numerica;building;4;;;
-EnclosedPorch;Area portico chiuso in mq;Numerica;space;3;;;
-FireplaceQu;Qualità del camino;Categorica;building;3;;ordinal encoding;
-Fireplaces;Numero di caminetti;Numerica;building;3;;;
-Foundation;Tipo di fondazione;Categorica;building;3;;one hot encoder;
-LandContour;Planarità della proprietà;Categorica;building/location;3;;one hot encoder;
-MasVnrType;Tipo di rivestimento in muratura;Categorica;building;3;;one hot encoder;
-MiscVal;$Valore della funzione varie;Numerica;building;3;;;
-OpenPorchSF;Area portico aperto in mq;Numerica;space;3;;;
-PavedDrive;Vialetto pavimentato;Categorica;building;3;;one hot encoder;
-RoofStyle;Tipo di tetto;Categorica;building;3;;one hot encoder;
-SaleType;Tipo di vendita;Categorica;building;3;;one hot encoder;
-TotalBsmtSF;Totale mq di superficie interrata;Numerica;space;3;;;
-Alley;Tipo di vicolo di accesso alla proprietà;Categorica;building;2;;One hot encoder;
-Fence;Qualità del recinto;Categorica;building;2;;ordinal encoding;
-GarageFinish;Finitura interna del garage;Categorica;building;2;;one hot encoder;
-GarageType;Posizione del garage;Categorica;building;2;;one hot encoder;
-LotShape;Forma generale della proprietà (regolare, Leggermente irregolare, irregolare, …);Categorica;space;2;;one hot encoder;
-SaleCondition;Condizione di vendita;Categorica;building;2;;one hot encoder;
-WoodDeckSF;Superficie del ponte in legno in mq;Numerica;space;2;;;
-BsmtQual;Valuta l'altezza del seminterrato;Categorica;building;1;;Ordinal encoding;
-KitchenAbvGr;Cucine sopra il livello (terra);Numerica;building;1;;;
-MiscFeature;Funzionalità varie non contemplate in altre categorie (ascensore, secondo garage, …);Categorica;building;1;;one hot encoder;
-MoSold;Mese venduto (MM);Numerica;building;1;;;
-Id;;Numerica;-;;;;
+Variabile	Descrizione	Tipo	Segmento	Aspettativa	Conclusione	Tipo di encoder	Dipende da
+1stFlrSF	Primo piano mq	Numerica	space	10	5		TotalBsmtSF
+2ndFlrSF	Secondo piano mq	Numerica	space	10	7		
+MSZoning	Identifica la classificazione generale della zona della vendita	Categorica	location	10		one hot encoder	
+BsmtFullBath	Bagni interrati completi (wc, doccia, vasca, lavandino)	Numerica	building	9			
+Condition1	Vicinanza a varie condizioni(Adiacente alla strada arteriosa, Funzionalitï¿½ fuori sede quasi positiva: parco, area verde, ecc.)	Categorica	location	9		one hot encoder 	
+Electrical	Sistema elettrico	Categorica	building	9		one hot encoder	
+Functional	Funzionalitï¿½ domestica	Categorica	building	9		one hot encoder	
+GarageArea	Dimensioni del garage in mq	Numerica	space	9			GarageCars
+GarageCars	Dimensioni del garage nella capacitï¿½ dell'auto	Numerica	space	9			GarageArea
+LotArea	Dimensione del lotto in mq	Numerica	space	9			
+PoolArea	Area piscina in mq	Numerica	space	9			
+PoolQC	Qualitï¿½ della piscina	Categorica	building	9		ordinal encoding	
+Utilities	Tipo di utenze disponibili	Categorica	building	9		one hot encoder	
+BsmtFinSF1	Tipo 1, mq finiti	Numerica	building	8			
+Condition2	Prossimitï¿½ a varie condizioni (se piï¿½ di una ï¿½ presente)	Categorica	location	8		one hot encoder 	
+Exterior1st	Rivestimento esterno sulla casa(mattoni, amianto, ..)	Categorica	building	8		one hot encoding	
+ExterQual	Valuta la qualitï¿½ del materiale all'esterno	Categorica	building	8		ordinal encoding	
+FullBath	"Bagni completi ""above grade"""	Numerica	building	8			
+KitchenQual	Qualitï¿½ della cucina	Categorica	building	8		ordinal encoding	
+OverallQual	Valuta il materiale complessivo e la finitura della casa	Numerica	building	8	10	ordinal encoding	
+YearBuilt	Data di costruzione originaria	Numerica	building	8	10		
+BldgType	Tipo di abitazione (Unifamiliare Indipendente, bifamiliare, Unitï¿½ terminale della casa a schiera, ï¿½)	Categorica	building	7		one hot encoder	
+BsmtFinSF2	Tipo 2, mq finiti	Numerica	building	7			
+BsmtUnfSF	Metri quadrati al grezzo di area seminterrata	Numerica	space	7			
+CentralAir	Aria condizionata centralizzata	Categorica	building	7		one hot encoder (yes/no)	
+ExterCond	Valuta lo stato attuale del materiale all'esterno	Categorica	building	7		ordinal encoding	
+Exterior2nd	Rivestimento esterno della casa (se piï¿½ di un materiale)	Categorica	building	7		one hot encoding	
+GrLivArea	Superficie abitabile sopra il livello (terra) in mq	Numerica	space	7			TotRmsAbvGrd
+Heating	Tipo di riscaldamento	Categorica	building	7		one hot encoder	
+HeatingQC	Qualitï¿½ e condizioni del riscaldamento	Categorica	building	7		ordinal encoding	
+HouseStyle	Stile dell'abitazione	Categorica	building	7		one hot encoder	
+MSSubClass	Identifica il tipo di abitazione oggetto della vendita.	Numerica	building	7		one hot encoder	
+RoofMatl	Materiale del tetto	Categorica	building	7		one hot encoder	
+TotRmsAbvGrd	Camere totali sopra il livello (esclusi i bagni)	Numerica	building	7			GrLivArea
+YearRemodAdd	Data di ristrutturazione (uguale alla data di costruzione se non ci sono ristrutturazioni o aggiunte)	Numerica	building	7			
+YrSold	Anno in cui ï¿½ stato venduto (AAAA)	Numerica	building	7			
+BsmtCond	Valuta le condizioni generali del seminterrato	Categorica	building	6		Ordinal encoding	
+BsmtFinType1	Valutazione dell'area finita del seminterrato	Categorica	building	6		Ordinal encoding	
+LowQualFinSF	mq rifiniti di bassa qualitï¿½ (tutti i pavimenti)	Numerica	space	6			
+OverallCond	Valuta le condizioni generali della casa	Numerica	building	6		ordinal encoding	
+Street	Tipo di strada di accesso alla proprietï¿½	Categorica	location	6		one hot encoder	
+3SsnPorch	Area portico tre stagioni in piedi quadrati	Numerica	space	5			
+BsmtFinType2	Valutazione dell'area finita del seminterrato (se piï¿½ tipologie)	Categorica	building	5		Ordinal encoding	
+BsmtHalfBath	Mezzi bagni nel seminterrato (solo wc e lavandino)	Numerica	building	5			
+GarageCond	Condizioni garage	Categorica	building	5		ordinal encoding	
+LotConfig	Configurazione del lotto (interno, angolo, ..)	Categorica	building	5		one hot encoder	
+Neighborhood	Posizioni fisiche all'interno dei confini della cittï¿½ di Ames	Categorica	location	5		one hot encoder	
+ScreenPorch	Area del portico della vetrata in mq	Numerica	space	5			
+BedroomAbvGr	Camere da letto di livello superiore (NON include camere da letto nel seminterrato)	Numerica	building	4			
+BsmtExposure	Si riferisce a muri a livello di walkout o giardino	Categorica	building	4		Ordinal encoding	
+GarageQual	Qualitï¿½ del garage	Categorica	building	4		ordinal encoding	
+GarageYrBlt	L'anno in cui il garage ï¿½ stato costruito	Numerica	building	4			
+HalfBath	Mezzi bagni sopra il livello (terra)	Numerica	building	4			
+LandSlope	Pendenza della proprietï¿½	Categorica	location	4		one hot encoder	
+LotFrontage	Piedi lineari di strada collegata alla proprietï¿½	Numerica	space	4			
+MasVnrArea	Superficie impiallacciata in muratura in mq	Numerica	building	4			
+EnclosedPorch	Area portico chiuso in mq	Numerica	space	3			
+FireplaceQu	Qualitï¿½ del camino	Categorica	building	3		ordinal encoding	
+Fireplaces	Numero di caminetti	Numerica	building	3			
+Foundation	Tipo di fondazione	Categorica	building	3		one hot encoder	
+LandContour	Planaritï¿½ della proprietï¿½	Categorica	building/location	3		one hot encoder	
+MasVnrType	Tipo di rivestimento in muratura	Categorica	building	3		one hot encoder	
+MiscVal	$Valore della funzione varie	Numerica	building	3			
+OpenPorchSF	Area portico aperto in mq	Numerica	space	3			
+PavedDrive	Vialetto pavimentato	Categorica	building	3		one hot encoder	
+RoofStyle	Tipo di tetto	Categorica	building	3		one hot encoder	
+SaleType	Tipo di vendita	Categorica	building	3		one hot encoder	
+TotalBsmtSF	Totale mq di superficie interrata	Numerica	space	3	10		1stFlrSF
+Alley	Tipo di vicolo di accesso alla proprietï¿½	Categorica	building	2		One hot encoder	
+Fence	Qualitï¿½ del recinto	Categorica	building	2		ordinal encoding	
+GarageFinish	Finitura interna del garage	Categorica	building	2		one hot encoder	
+GarageType	Posizione del garage	Categorica	building	2		one hot encoder	
+LotShape	Forma generale della proprietï¿½ (regolare, Leggermente irregolare, irregolare, ï¿½)	Categorica	space	2		one hot encoder	
+SaleCondition	Condizione di vendita	Categorica	building	2		one hot encoder	
+WoodDeckSF	Superficie del ponte in legno in mq	Numerica	space	2			
+BsmtQual	Valuta l'altezza del seminterrato	Categorica	building	1		Ordinal encoding	
+KitchenAbvGr	Cucine sopra il livello (terra)	Numerica	building	1			
+MiscFeature	Funzionalitï¿½ varie non contemplate in altre categorie (ascensore, secondo garage, ï¿½)	Categorica	building	1		one hot encoder	
+MoSold	Mese venduto (MM)	Numerica	building	1			
+Id		Numerica	-				

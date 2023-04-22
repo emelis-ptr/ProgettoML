@@ -8,6 +8,7 @@ from numpy import ndarray
 from pandas import DataFrame
 
 from models import Model
+import seaborn as sns
 
 
 def check_nan_value(dataset):
@@ -129,6 +130,15 @@ class Grafici:
         plt.ylabel(r'Residui ($y_i-t_i$)')
         plt.hlines(y=0, xmin=(int(mm) / 10) * 10, xmax=(int(mx) / 10) * 10 + 10, color=self.colors[2], lw=2)
         plt.tight_layout()
+        plt.show()
+
+    def correlation_matrix(self, df_train, k=10):
+        #saleprice correlation matrix
+        corrmat = df_train.corr()
+        cols = corrmat.nlargest(k, 'SalePrice')['SalePrice'].index
+        cm = np.corrcoef(df_train[cols].values.T)
+        sns.set(font_scale=1.25)
+        hm = sns.heatmap(cm, cbar=True, annot=True, square=True, fmt='.2f', annot_kws={'size': 10}, yticklabels=cols.values, xticklabels=cols.values)
         plt.show()
 
 
