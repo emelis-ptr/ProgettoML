@@ -119,14 +119,84 @@ class Grafici:
         plt.tight_layout()
         plt.show()
 
-    def correlation_matrix(self, df_train, k=10):
-        #saleprice correlation matrix
+    def correlation_matrix_plot(self, df_train: DataFrame, k=10):
+        # saleprice correlation matrix
         corrmat = df_train.corr()
         cols = corrmat.nlargest(k, 'SalePrice')['SalePrice'].index
         cm = np.corrcoef(df_train[cols].values.T)
         sns.set(font_scale=1.25)
-        hm = sns.heatmap(cm, cbar=True, annot=True, square=True, fmt='.2f', annot_kws={'size': 10}, yticklabels=cols.values, xticklabels=cols.values)
+        sns.heatmap(cm, cbar=True, annot=True, square=True, fmt='.2f', annot_kws={'size': 10},
+                    yticklabels=cols.values, xticklabels=cols.values)
         plt.show()
+
+    def correlation_matrix_filtered_plot(self, df_train: DataFrame, threshold=0.6):
+        # threshold: valore minimo di correlazione da considerare
+        val_max = 0.99
+        # si selezionano le colonne
+        labels = df_train.columns
+        corr, ind_x, ind_y = correlazione_matrice(df_train, threshold, val_max)
+        # si aggiornano le colonne selezionando solamente quelle filtrate
+        map_labels_x = [item for i, item in enumerate(labels) if i not in ind_x]
+        map_labels_y = [item for i, item in enumerate(labels) if i not in ind_y]
+        # plot heatmap
+        heatmap = sns.heatmap(corr, annot=True, fmt='.2f',
+                              xticklabels=map_labels_x,
+                              yticklabels=map_labels_y,
+                              vmin=threshold,
+                              vmax=val_max,
+                              linewidths=1.0,
+                              linecolor="grey")
+
+        heatmap.set_title("Reduced heatmap")
+        plt.show()
+
+
+def correlazione_matrice(df_train: DataFrame, threshold: float, val_max: float):
+    # determina la correlazione
+    corr = df_train.corr().to_numpy()
+    # seleziona gli elementi che sono compresi tra il threshold e un valore massimo
+    ind_x, = np.where(np.all(np.logical_or(corr < threshold, corr > val_max), axis=0))
+    corr = np.delete(corr, ind_x, 1)  # si eliminano
+
+    # stessa cosa per le righe
+    ind_y, = np.where(np.all(np.logical_or(corr < threshold, corr > val_max), axis=1))
+    corr = np.delete(corr, ind_y, 0)
+    # si aggiornano le colonne selezionando solamente quelle filtrate
+
+    return corr, ind_x, ind_y
+
+
+def correlazione_dataframe(df_train, threshold, val_max):
+    # si selezionano le colonne
+    labels = df_train.columns
+
+    corr, ind_x, ind_y = correlazione_matrice(df_train, threshold, val_max)
+    map_labels_x = [item for i, item in enumerate(labels) if i not in ind_x]
+    map_labels_y = [item for i, item in enumerate(labels) if i not in ind_y]
+
+    return pd.DataFrame(corr, columns=map_labels_x, index=map_labels_y)
+
+
+def confronto(df_train, threshold, val_max):
+    corr = correlazione_dataframe(df_train, threshold, val_max)
+
+    for r in corr:
+        print(r)
+
+
+class Correlazione:
+    def __init__(self, feature1, feature2, correlazione, correlazione_f1_target, correlazione_f2_target):
+        self.feature1 = feature1
+        self.feature2 = feature2
+        self.correlazione = correlazione
+        self.correlazione_f1_target = correlazione_f1_target
+        self.correlazione_f2_target = correlazione_f2_target
+
+    def __str__(self):
+        return f"({self.feature1, self.feature2, self.correlazione, self.correlazione_f1_target, self.correlazione_f2_target})"
+
+    def __repr__(self):
+        return f"({self.feature1, self.feature2, self.correlazione, self.correlazione_f1_target, self.correlazione_f2_target})"
 
 
 if __name__ == '__main__':
