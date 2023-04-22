@@ -62,7 +62,7 @@ class Preprocessing:
 
     def __remove_nan_value(self, dataset: DataFrame):
         """Elimina colonne con valori NaN quando sono tanti"""
-        # eliminiamo colonne che contengono valori Nan maggiori del 20%
+        # eliminiamo colonne che contengono valori Nan maggiori del [threshold]%
         thresh = int((len(dataset) * self.threshold) / 100) + 1
         # axis: specifichiamo di eliminare solo le colonne; thresh: numero minimo per eliminare
         dataset.dropna(axis='columns', thresh=thresh, inplace=True)
